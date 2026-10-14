@@ -1315,7 +1315,7 @@
       color: #64748b;
       letter-spacing: 0.5px;
       text-align: center;
-      margin-top: 12px;
+      margin-top: 2px;
       font-family: 'Pixelify Sans', monospace;
     }
     .console-footer-credits a {
@@ -1650,6 +1650,7 @@
     const STORAGE_BEST_KEY = 'pocket_hero_2048_best';
     const STORAGE_ALBUM_KEY = 'pocket_hero_2048_races_heroes';
     const STORAGE_SETTINGS_KEY = 'pocket_hero_2048_settings';
+    const STORAGE_SESSION_KEY = 'pocket_hero_2048_session';
 
     let audioCtx = null;
     let masterFilter = null;
@@ -1966,6 +1967,19 @@
           fanfareSound: fanfareSoundEnabled,
           showNumbers: showNumbersEnabled
         }));
+      } catch (e) {}
+    }
+
+    function saveSessionData() {
+      try {
+        const session = {
+          raceKey: currentRaceKey,
+          grid: grid.map(row => row.map(cell => cell ? { level: cell.level, row: cell.row, col: cell.col } : null)),
+          score: score,
+          nextTileId: nextTileId,
+          hasWon: hasWon
+        };
+        localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(session));
       } catch (e) {}
     }
 
@@ -2342,11 +2356,14 @@
           spawnRandomTile();
           renderBoard([]);
           isAnimating = false;
+          saveSessionData();
 
           if (hasGodlike) {
             hasWon = true;
+            saveSessionData();
             showEndModal(true);
           } else if (checkGameOver()) {
+            saveSessionData();
             showEndModal(false);
           }
         }, 125);
@@ -2393,6 +2410,59 @@
       spawnRandomTile();
       renderBoard();
       updateTopAvatar();
+      saveSessionData();
+    }
+
+    function restoreSessionOrStartNew() {
+      let restored = false;
+      try {
+        const raw = localStorage.getItem(STORAGE_SESSION_KEY);
+        if (raw) {
+          const session = JSON.parse(raw);
+          if (session && session.raceKey && RACES_DATABASE[session.raceKey] && Array.isArray(session.grid)) {
+            currentRaceKey = session.raceKey;
+            score = Number(session.score) || 0;
+            hasWon = !!session.hasWon;
+            nextTileId = Number(session.nextTileId) || 1;
+
+            initEmptyGrid();
+            let tileCount = 0;
+            for (let r = 0; r < GRID_SIZE; r++) {
+              for (let c = 0; c < GRID_SIZE; c++) {
+                const cell = session.grid[r] && session.grid[r][c];
+                if (cell && cell.level) {
+                  grid[r][c] = {
+                    id: nextTileId++,
+                    level: cell.level,
+                    row: r,
+                    col: c,
+                    isNew: false,
+                    isMerged: false
+                  };
+                  tileCount++;
+                }
+              }
+            }
+
+            if (tileCount >= 2) {
+              restored = true;
+              tileContainer.innerHTML = '';
+              activeTileElements.clear();
+              renderBoard();
+              updateTopAvatar();
+              if (checkGameOver()) {
+                showEndModal(hasWon);
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Session restore error:', e);
+      }
+
+      if (!restored) {
+        startNewGame();
+      }
     }
 
     function showEndModal(isVictory) {
@@ -2915,7 +2985,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       loadSavedGameData();
       preloadAllRaces().then(() => {
-        startNewGame();
+        restoreSessionOrStartNew();
       });
     });
   </script>
