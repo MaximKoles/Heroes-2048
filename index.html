@@ -1098,7 +1098,7 @@
         </span>
         <div class="companion-info-column">
           <div class="race-indicator-pill" id="hud-race-label">ЛЮДИ</div>
-          <div class="companion-hero-title" id="hud-hero-title">LVL 1</div>
+          <div class="companion-hero-title" id="hud-hero-title">LVL 1/12</div>
         </div>
       </div>
 
@@ -1778,7 +1778,7 @@
         companionSprite.style.backgroundPosition = asset.positions[maxLvl] || '0% 0%';
       }
       hudRaceLabel.textContent = race.name.toUpperCase();
-      hudHeroTitle.textContent = `[${hero.value}] ${hero.name}`;
+      hudHeroTitle.textContent = `LVL ${maxLvl}/12 ${hero.name}`;
     }
 
     function triggerCompanionAnimation(type = 'merge') {
