@@ -468,9 +468,10 @@
     .dock-buttons-row {
       display: flex;
       justify-content: space-between;
-      gap: 6px;
+      gap: 5px;
       width: 100%;
       margin-bottom: 12px;
+      align-items: stretch;
     }
 
     .btn-large-dock {
@@ -482,7 +483,7 @@
       padding: 10px 3px;
       color: var(--lcd-text-deep);
       font-family: inherit;
-      font-size: clamp(9.5px, 2.7vw, 11px);
+      font-size: clamp(9px, 2.6vw, 11px);
       font-weight: 700;
       letter-spacing: 0.2px;
       cursor: pointer;
@@ -503,6 +504,39 @@
       transform: translateY(2px);
       box-shadow: none;
       background: #748673;
+    }
+
+    /* Компактная квадратная кнопка отмены (Undo) */
+    .btn-square-dock {
+      flex: 0 0 38px;
+      width: 38px;
+      min-width: 38px;
+      background: #849683;
+      border: 2px solid #3c4e3b;
+      border-radius: 6px;
+      padding: 0;
+      color: var(--lcd-text-deep);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2.5px 0 #2c3a2b;
+      transition: transform 0.05s, box-shadow 0.05s, background-color 0.05s;
+    }
+    .btn-square-dock svg {
+      flex-shrink: 0;
+    }
+    .btn-square-dock:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: none;
+      background: #748673;
+    }
+    .btn-square-dock:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      box-shadow: 0 1px 0 #2c3a2b;
+      transform: none !important;
+      filter: grayscale(0.2);
     }
 
     .footer-signature {
@@ -1070,7 +1104,7 @@
 
   <main class="lcd-screen-viewport" id="lcd-main-viewport">
 
-    <!-- 1. Верхний системный статус-бар (БЕЗ индикатора батареи) -->
+    <!-- 1. Верхний системный статус-бар -->
     <header class="sys-header-bar">
       <div class="sys-badge-group">
         <span class="sys-logo-badge">HERO-2048</span>
@@ -1152,6 +1186,14 @@
     <!-- 4. Нижний док кнопок мобильного интерфейса -->
     <footer class="bottom-controls-dock">
       <div class="dock-buttons-row">
+        <!-- Компактная квадратная кнопка отмены последнего действия -->
+        <button class="btn-square-dock" id="btn-dock-undo" title="Отменить ход" disabled aria-label="Отменить последний ход">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+        </button>
+
         <button class="btn-large-dock" id="btn-dock-heroes">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H8v4h8v-4h-1c-.55 0-1-.45-1-1v-2.34"/><path d="M6 4h12v7a6 6 0 0 1-12 0V4z"/></svg>
           ГЕРОИ <span id="dock-unlocked-counter">0/60</span>
@@ -1170,7 +1212,7 @@
       </div>
     </footer>
 
-    <!-- Модалка: Зал героев (5 колонок с расами, сразу на всю ширину без горизонтального свайпа) -->
+    <!-- Модалка: Зал героев -->
     <div class="retro-modal-view" id="modal-heroes-gallery">
       <div class="modal-nav-bar">
         <div class="modal-title-column">
@@ -1180,20 +1222,11 @@
         <button class="btn-modal-close-icon" id="btn-x-gallery">✕</button>
       </div>
 
-      <!-- Контейнер для 5 колонок рас без горизонтального скролла -->
       <div class="all-races-table-viewport">
-        <!-- Фиксированная шапка 5 колонок -->
-        <div class="races-5col-header" id="races-5col-header-bar">
-          <!-- Заполняется динамически JS -->
-        </div>
-
-        <!-- 5 вертикальных колонок рас, 12 рядов -->
-        <div class="races-5col-grid" id="races-5col-matrix">
-          <!-- Заполняется динамически JS -->
-        </div>
+        <div class="races-5col-header" id="races-5col-header-bar"></div>
+        <div class="races-5col-grid" id="races-5col-matrix"></div>
       </div>
 
-      <!-- Панель информации о выбранном герое -->
       <div class="lore-details-drawer" id="gallery-lore-drawer">
         <div class="lore-hero-name" id="lore-card-name">ГЕРОЙ</div>
         <div class="lore-hero-story" id="lore-card-desc">...</div>
@@ -1225,16 +1258,19 @@
           <div><strong>Слияние воинов:</strong> Бойцы одинакового ранга объединяются в героя следующего уровня ($1 \to 2 \to 3 \dots \to 12$).</div>
         </div>
         <div class="rule-bullet">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+          <div><strong>Отмена одного хода:</strong> Квадратная кнопка со стрелкой позволяет отменить ровно 1 последний ход. Нельзя отменять дважды подряд!</div>
+        </div>
+        <div class="rule-bullet">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14v2H5v-2z"/></svg>
           <div><strong>Цель похода:</strong> Пробуди богоподобного 12-го чемпиона расы (сила 4096)!</div>
         </div>
         <div class="rule-bullet">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <div><strong>5 рас в зале героев:</strong> Люди, Нежить, Эльфы, Орки и Хоббиты. Собери всех 60 чемпионов!</div>
-        </div>
-        <div class="rule-bullet">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          <div><strong>Герой-Тамагочи:</strong> Жми на аватар сверху, чтобы получить совет и вдохновение.</div>
         </div>
       </div>
 
@@ -1429,6 +1465,11 @@
     function soundTileMove() {
       if (!isMoveAudioEnabled) return;
       playBuzzerTone(175, 0.042, 'triangle', 0.048, -60);
+    }
+
+    function soundUndoAction() {
+      playBuzzerTone(260, 0.045, 'triangle', 0.045, -80);
+      setTimeout(() => playBuzzerTone(180, 0.05, 'sine', 0.04, -30), 30);
     }
 
     const MERGE_MELODIES = [
@@ -1718,7 +1759,13 @@
           grid: gridMatrix.map(row => row ? row.map(c => c ? { level: c.level, row: c.row, col: c.col } : null) : []),
           score: currentScore,
           nextTileId,
-          hasWonGame
+          hasWonGame,
+          undoState: previousBoardState ? {
+            grid: previousBoardState.grid.map(row => row.map(c => c ? { level: c.level, row: c.row, col: c.col } : null)),
+            score: previousBoardState.score,
+            hasWonGame: previousBoardState.hasWonGame,
+            nextTileId: previousBoardState.nextTileId
+          } : null
         };
         localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(session));
       } catch (e) {}
@@ -1733,6 +1780,9 @@
     let isMoveInProgress = false;
     const activeTileDomNodes = new Map();
 
+    // Хранение ровно одного предыдущего состояния для Single-step Undo
+    let previousBoardState = null;
+
     const boardTileLayer = document.getElementById('board-tile-layer');
     const boardSurfaceEl = document.getElementById('game-board-surface');
     const hudScoreVal = document.getElementById('hud-score-val');
@@ -1745,6 +1795,13 @@
     const tamagotchiBubble = document.getElementById('hero-tamagotchi-bubble');
     const heroDialogText = document.getElementById('hero-dialog-text');
     const sysToast = document.getElementById('sys-toast-element');
+    const btnDockUndo = document.getElementById('btn-dock-undo');
+
+    function updateUndoButtonState() {
+      if (!btnDockUndo) return;
+      const canUndo = previousBoardState !== null;
+      btnDockUndo.disabled = !canUndo;
+    }
 
     function notifyToast(text) {
       if (!sysToast) return;
@@ -1965,12 +2022,77 @@
       soundTapButton();
     }
 
+    // Сохранение мгновенного слепка поля перед совершением хода
+    function createBoardSnapshot() {
+      return {
+        grid: gridMatrix.map(row => row.map(tile => tile ? {
+          id: tile.id,
+          level: tile.level,
+          row: tile.row,
+          col: tile.col
+        } : null)),
+        score: currentScore,
+        hasWonGame,
+        nextTileId
+      };
+    }
+
+    // Отмена ровно одного последнего хода
+    function undoLastAction() {
+      if (!isGameReady || isMoveInProgress || !previousBoardState || isModalCurrentlyActive()) {
+        return;
+      }
+
+      soundUndoAction();
+      triggerHapticFeedback('medium');
+
+      // Восстанавливаем состояние из слепка
+      currentScore = previousBoardState.score;
+      hasWonGame = previousBoardState.hasWonGame;
+      nextTileId = previousBoardState.nextTileId;
+
+      gridMatrix = [];
+      for (let r = 0; r < GRID_SIZE; r++) {
+        gridMatrix[r] = [];
+        for (let c = 0; c < GRID_SIZE; c++) {
+          const savedTile = previousBoardState.grid[r][c];
+          if (savedTile) {
+            gridMatrix[r][c] = {
+              id: savedTile.id,
+              level: savedTile.level,
+              row: savedTile.row,
+              col: savedTile.col,
+              isNew: false,
+              isMerged: false
+            };
+          } else {
+            gridMatrix[r][c] = null;
+          }
+        }
+      }
+
+      // Очищаем возможность отменять подряд более одного раза
+      previousBoardState = null;
+      updateUndoButtonState();
+
+      // Перерисовываем чисто без анимаций перемещения
+      boardTileLayer.innerHTML = '';
+      activeTileDomNodes.clear();
+      renderBoardTiles();
+      refreshCompanionHUD();
+      saveCurrentBoardSession();
+      notifyToast('Ход отменён');
+    }
+
     function performMove(direction) {
       if (!isGameReady || isMoveInProgress || isModalCurrentlyActive()) return;
       if (!gridMatrix || gridMatrix.length < GRID_SIZE) {
         initializeEmptyGrid();
         return;
       }
+
+      // Сохраняем состояние для возможного Undo ДО проведения перемещения
+      const snapshotBeforeMove = createBoardSnapshot();
 
       let hasMoved = false;
       const mergedGridFlags = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(false));
@@ -2057,6 +2179,10 @@
 
       if (hasMoved) {
         isMoveInProgress = true;
+        // Запоминаем снимок для отмены ровно на один ход
+        previousBoardState = snapshotBeforeMove;
+        updateUndoButtonState();
+
         soundTileMove();
         triggerHapticFeedback('light');
         renderBoardTiles(deathTilesList);
@@ -2137,6 +2263,8 @@
       currentScore = 0;
       hasWonGame = false;
       isMoveInProgress = false;
+      previousBoardState = null;
+      updateUndoButtonState();
 
       spawnRandomTile();
       spawnRandomTile();
@@ -2158,6 +2286,12 @@
             currentScore = Number(sess.score) || 0;
             hasWonGame = !!sess.hasWon;
             nextTileId = Number(sess.nextTileId) || 1;
+
+            if (sess.undoState && Array.isArray(sess.undoState.grid)) {
+              previousBoardState = sess.undoState;
+            } else {
+              previousBoardState = null;
+            }
 
             initializeEmptyGrid();
             let count = 0;
@@ -2185,6 +2319,7 @@
               renderBoardTiles();
               refreshCompanionHUD();
               isGameReady = true;
+              updateUndoButtonState();
               if (isBoardLocked()) {
                 displayGameOverModal(hasWonGame);
               }
@@ -2284,7 +2419,6 @@
       headerBar.innerHTML = '';
       matrixContainer.innerHTML = '';
 
-      // Создаём 5 колоночных заголовков
       RACE_KEYS.forEach(key => {
         const race = RACES_DATABASE[key];
         const unlockedCount = (unlockedBestiary[key] || []).length;
@@ -2298,7 +2432,6 @@
         headerBar.appendChild(pill);
       });
 
-      // Создаём 5 вертикальных колонок, по 12 уровней в каждой
       RACE_KEYS.forEach(key => {
         const colTrack = document.createElement('div');
         colTrack.className = 'race-col-track';
@@ -2592,6 +2725,21 @@
 
     window.addEventListener('keydown', (e) => {
       if (!isGameReady || isModalCurrentlyActive()) return;
+
+      // Горячие клавиши для Undo: Ctrl+Z / Cmd+Z / Backspace / U
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z' || e.key === 'я' || e.key === 'Я')) {
+        e.preventDefault();
+        undoLastAction();
+        return;
+      }
+      if (e.key === 'Backspace' || e.key === 'u' || e.key === 'U' || e.key === 'г' || e.key === 'Г') {
+        if (!e.target.closest('input, textarea')) {
+          e.preventDefault();
+          undoLastAction();
+          return;
+        }
+      }
+
       switch (e.key) {
         case 'ArrowUp': case 'w': case 'W': case 'ц': case 'Ц':
           e.preventDefault(); performMove(0); break;
@@ -2613,6 +2761,12 @@
     document.getElementById('btn-show-rules').addEventListener('click', () => displayModal(modalRulesView));
     document.getElementById('btn-x-rules').addEventListener('click', dismissAllModals);
     document.getElementById('btn-rules-confirm').addEventListener('click', dismissAllModals);
+
+    // Слушатель кнопки отмены
+    btnDockUndo.addEventListener('click', (e) => {
+      e.stopPropagation();
+      undoLastAction();
+    });
 
     document.getElementById('btn-dock-heroes').addEventListener('click', () => {
       displayModal(modalHeroesGallery, () => {
